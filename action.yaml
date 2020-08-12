@@ -27,7 +27,37 @@ runs:
         accountid: "${{ inputs.accountid }}"
         AWS_ACCESS_KEY_ID: "${{ inputs.access_key_id }}"
         AWS_SECRET_ACCESS_KEY: "${{ inputs.secret_access_key }}"
-      run: $/scripts/create-ecr.sh
+      run: |
+        if ! aws ecr describe-repositories --region $region --repository-names $image > /dev/null 2>&1 ; then
+          aws ecr create-repository --region $region --repository-name $image
+          aws ecr set-repository-policy --region $region --repository-name $image --policy-text '{
+              "Version": "2008-10-17",
+              "Statement": [
+                  {
+                  "Sid": "Org-wide access",
+                  "Effect": "Allow",
+                  "Principal": "*",
+                  "Action": [
+                      "ecr:BatchCheckLayerAvailability",
+                      "ecr:BatchGetImage",
+                      "ecr:CompleteLayerUpload",
+                      "ecr:GetDownloadUrlForLayer",
+                      "ecr:InitiateLayerUpload",
+                      "ecr:PutImage",
+                      "ecr:UploadLayerPart",
+                      "ecr:ListImages"
+                  ],
+                  "Condition": {
+                      "StringEquals": {
+                      "aws:PrincipalOrgID": "o-fmu3vfgvz2"
+                      }
+                  }
+                  }
+              ]
+            }'
+            aws ecr put-image-scanning-configuration --region $region --repository-name $image --image-scanning-configuration scanOnPush=true
+        fi
+
       shell: bash
 
     - name: "Determine tag"
@@ -46,5 +76,58 @@ runs:
         tags: "latest,${{ steps.choosetag.outputs.tag }}"
         AWS_ACCESS_KEY_ID: "${{ inputs.access_key_id }}"
         AWS_SECRET_ACCESS_KEY: "${{ inputs.secret_access_key }}"
-      run: $/scripts/build-and-push.sh
+      run: |
+        function main() {
+          check "${image}" "image"
+          check "${tag}" "tag"
+          check "${region}" "region"
+          check "${accountid}" "accountid"
+
+          ACCOUNT_URL="${accountid}.dkr.ecr.${region}.amazonaws.com"
+          export AWS_DEFAULT_REGION=${region}
+
+          login
+          docker_build "latest,${tag}" $accountid
+          docker_push_to_ecr "latest,${tag}" $ACCOUNT_URL
+        }
+
+        function check() {
+          if [ -z "${1}" ]; then
+            >&2 echo "Unable to find the ${2} env variable."
+            exit 1
+          fi
+        }
+
+        function login() {
+          echo "== START LOGIN"
+          LOGIN_COMMAND=$(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
+          $LOGIN_COMMAND
+          echo "== FINISHED LOGIN"
+        }
+
+        function docker_build() {
+          echo "== START DOCKERIZE"
+          local TAG=$1
+          local docker_tag_args=""
+          local DOCKER_TAGS=$(echo "$TAG" | tr "," "\n")
+          for t in $DOCKER_TAGS; do
+            docker_tag_args="$docker_tag_args -t $2/$image:$t"
+          done
+
+          docker build --build-arg version=${tag} -f Dockerfile $docker_tag_args .
+          echo "== FINISHED DOCKERIZE"
+        }
+
+        function docker_push_to_ecr() {
+          echo "== START PUSH TO ECR"
+          local TAG=$1
+          local DOCKER_TAGS=$(echo "$TAG" | tr "," "\n")
+          for t in $DOCKER_TAGS; do
+            docker push $2/${image}:$t
+            echo ::set-output name=image::$2/$image:$t
+          done
+          echo "== FINISHED PUSH TO ECR"
+        }
+
+        main      
       shell: bash

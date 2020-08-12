@@ -27,6 +27,7 @@ runs:
         accountid: "${{ inputs.accountid }}"
         AWS_ACCESS_KEY_ID: "${{ inputs.access_key_id }}"
         AWS_SECRET_ACCESS_KEY: "${{ inputs.secret_access_key }}"
+      # Loading from script doesn't work using any syntax we've tried, so have to inline them, ugh
       run: |
         if ! aws ecr describe-repositories --region $region --repository-names $image > /dev/null 2>&1 ; then
           aws ecr create-repository --region $region --repository-name $image
@@ -73,9 +74,10 @@ runs:
         image: "${{ inputs.image }}"
         region: "${{ inputs.region }}"
         accountid: "${{ inputs.accountid }}"
-        tags: "latest,${{ steps.choosetag.outputs.tag }}"
+        tag: "${{ steps.choosetag.outputs.tag }}"
         AWS_ACCESS_KEY_ID: "${{ inputs.access_key_id }}"
         AWS_SECRET_ACCESS_KEY: "${{ inputs.secret_access_key }}"
+      # Loading from script doesn't work using any syntax we've tried, so have to inline them, ugh
       run: |
         function main() {
           check "${image}" "image"

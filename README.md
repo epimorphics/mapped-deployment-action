@@ -39,7 +39,7 @@ jobs:
 
     - name: "Build and push image"
       if: steps.mapper.outputs.image != ''
-      uses: epimorphics/mapped-deployment-action@master
+      uses: epimorphics/mapped-deployment-action@1.0
       with:
         image: "${{ steps.mapper.outputs.image }}"
         region: "${{ steps.mapper.outputs.region }}"

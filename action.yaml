@@ -27,7 +27,7 @@ runs:
         accountid: "${{ inputs.accountid }}"
         AWS_ACCESS_KEY_ID: "${{ inputs.access_key_id }}"
         AWS_SECRET_ACCESS_KEY: "${{ inputs.secret_access_key }}"
-      run: $/create-ech.sh
+      run: $/create-ecr.sh
       shell: bash
 
     - name: "Determine tag"

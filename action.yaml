@@ -89,7 +89,7 @@ runs:
           export AWS_DEFAULT_REGION=${region}
 
           login
-          docker_build "latest,${tag}" $accountid
+          docker_build "latest,${tag}" $ACCOUNT_URL
           docker_push_to_ecr "latest,${tag}" $ACCOUNT_URL
         }
 

@@ -44,8 +44,8 @@ jobs:
         image: "${{ steps.mapper.outputs.image }}"
         region: "${{ steps.mapper.outputs.region }}"
         accountid: "${{ steps.mapper.outputs.accountid }}"
-        AWS_ACCESS_KEY_ID: ${{ secrets.BUILD_EPI_EXPT_AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.BUILD_EPI_EXPT_AWS_SECRET_ACCESS_KEY }}
+        access_key_id: ${{ secrets.BUILD_EPI_EXPT_AWS_ACCESS_KEY_ID }}
+        secret_access_key: ${{ secrets.BUILD_EPI_EXPT_AWS_SECRET_ACCESS_KEY }}
 ```
 
 ## Tag choice

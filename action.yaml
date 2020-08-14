@@ -15,8 +15,7 @@ runs:
       env:
         image: "${{ inputs.image }}"
         region: "${{ inputs.region }}"
-        AWS_ACCESS_KEY_ID: "${{ inputs.access_key_id }}"
-        AWS_SECRET_ACCESS_KEY: "${{ inputs.secret_access_key }}"
+
       # Loading from script doesn't work using any syntax we've tried, so have to inline them, ugh
       run: |
         if ! aws ecr describe-repositories --region $region --repository-names $image > /dev/null 2>&1 ; then
@@ -64,8 +63,7 @@ runs:
         image: "${{ inputs.image }}"
         region: "${{ inputs.region }}"
         tag: "${{ steps.choosetag.outputs.tag }}"
-        AWS_ACCESS_KEY_ID: "${{ inputs.access_key_id }}"
-        AWS_SECRET_ACCESS_KEY: "${{ inputs.secret_access_key }}"
+
       # Loading from script doesn't work using any syntax we've tried, so have to inline them, ugh
       run: |
         function main() {
@@ -77,7 +75,6 @@ runs:
           ACCOUNT_URL="${accountid}.dkr.ecr.${region}.amazonaws.com"
           export AWS_DEFAULT_REGION=${region}
 
-          login
           docker_build "latest,${tag}" $ACCOUNT_URL
           docker_push_to_ecr "latest,${tag}" $ACCOUNT_URL
         }
@@ -87,13 +84,6 @@ runs:
             >&2 echo "Unable to find the ${2} env variable."
             exit 1
           fi
-        }
-
-        function login() {
-          echo "== START LOGIN"
-          LOGIN_COMMAND=$(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
-          $LOGIN_COMMAND
-          echo "== FINISHED LOGIN"
         }
 
         function docker_build() {

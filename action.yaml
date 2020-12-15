@@ -53,7 +53,7 @@ runs:
     - name: "Determine tag"
       id: choosetag
       run: |
-        git fetch --prune --unshallow --tags
+        git fetch --prune --unshallow --tags -f
         tag=$( if git describe > /dev/null 2>&1 ; then   git describe; else   git rev-parse --short HEAD; fi )
         echo "::set-output name=tag::${tag}"
       shell: bash

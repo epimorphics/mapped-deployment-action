@@ -7,6 +7,9 @@ inputs:
   region:
     description: 'AWS region of ECR as extracted by deployment mapper'
     required: true
+  buldArgs:
+    description: 'Docker build arguments'
+    required: false
     
 runs:
   using: "composite"
@@ -62,6 +65,7 @@ runs:
       env:
         image: "${{ inputs.image }}"
         region: "${{ inputs.region }}"
+        buldArgs: "${{ inputs.buildArgs }}"
         tag: "${{ steps.choosetag.outputs.tag }}"
 
       # Loading from script doesn't work using any syntax we've tried, so have to inline them, ugh
@@ -95,7 +99,14 @@ runs:
             docker_tag_args="$docker_tag_args -t $2/$image:$t"
           done
 
-          docker build --build-arg version=${tag} -f Dockerfile $docker_tag_args .
+          IFS=',' read -ra ARRAY <<< "$buldArgs"
+          ADDITIONAL_BUILD_ARGS=""
+          for i in "${ARRAY[@]}"
+          do
+            ADDITIONAL_BUILD_ARGS+="--build-arg $i "
+          done
+
+          docker build --build-arg version=${tag} ${ADDITIONAL_BUILD_ARGS} -f Dockerfile $docker_tag_args .
           echo "== FINISHED DOCKERIZE"
         }
 

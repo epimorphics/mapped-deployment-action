@@ -7,7 +7,7 @@ inputs:
   region:
     description: 'AWS region of ECR as extracted by deployment mapper'
     required: true
-  buldArgs:
+  buildArgs:
     description: 'Docker build arguments'
     required: false
     

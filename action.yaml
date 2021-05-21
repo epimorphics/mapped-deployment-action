@@ -103,7 +103,7 @@ runs:
           ADDITIONAL_BUILD_ARGS=""
           for i in "${ARGS_ARRAY[@]}"
           do
-            ADDITIONAL_BUILD_ARGS+="--build-arg \"${i}\" "
+            ADDITIONAL_BUILD_ARGS+="--build-arg '${i}' "
           done
 
           docker build --build-arg version=${tag} ${ADDITIONAL_BUILD_ARGS} -f Dockerfile $docker_tag_args .

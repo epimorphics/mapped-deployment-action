@@ -99,8 +99,7 @@ runs:
             docker_tag_args="$docker_tag_args -t $2/$image:$t"
           done
 
-          IFS=';'
-          ARGS_ARRAY=($buildArgs)
+          IFS=';'; ARGS_ARRAY=($buildArgs); unset IFS;
           ADDITIONAL_BUILD_ARGS=""
           for i in "${ARGS_ARRAY[@]}"
           do

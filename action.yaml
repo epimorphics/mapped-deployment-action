@@ -65,7 +65,7 @@ runs:
       env:
         image: "${{ inputs.image }}"
         region: "${{ inputs.region }}"
-        buldArgs: "${{ inputs.buildArgs }}"
+        buildArgs: "${{ inputs.buildArgs }}"
         tag: "${{ steps.choosetag.outputs.tag }}"
 
       # Loading from script doesn't work using any syntax we've tried, so have to inline them, ugh
@@ -99,7 +99,7 @@ runs:
             docker_tag_args="$docker_tag_args -t $2/$image:$t"
           done
 
-          IFS=',' read -ra ARRAY <<< "$buldArgs"
+          IFS=',' read -d '' -ra ARRAY <<< "$buildArgs"
           ADDITIONAL_BUILD_ARGS=""
           for i in "${ARRAY[@]}"
           do

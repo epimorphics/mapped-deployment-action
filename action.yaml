@@ -104,17 +104,7 @@ runs:
           ADDITIONAL_BUILD_ARGS=""
           for i in "${ARGS_ARRAY[@]}"
           do
-            if [[ "$i" =~ ([a-Z0-9_]*)=(.*) ]]; then
-              if [[ ${BASH_REMATCH[1]} && ${BASH_REMATCH[2]} ]]; then
-                ADDITIONAL_BUILD_ARGS+="--build-arg ${BASH_REMATCH[0]} "
-              else
-                echo "Invalid buildArgs format: ${i}"
-                exit 1
-              fi
-            else
-              echo "Invalid buildArgs format: ${i}"
-              exit 1
-            fi
+            ADDITIONAL_BUILD_ARGS+="--build-arg ${i} "
           done
 
           docker build --build-arg version=${tag} ${ADDITIONAL_BUILD_ARGS} -f Dockerfile $docker_tag_args .

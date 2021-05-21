@@ -100,13 +100,14 @@ runs:
           done
 
           IFS=';'; ARGS_ARRAY=($buildArgs); unset IFS;
-          ADDITIONAL_BUILD_ARGS=""
+          ADDITIONAL_BUILD_ARGS=()
           for i in "${ARGS_ARRAY[@]}"
           do
-            ADDITIONAL_BUILD_ARGS+="--build-arg '${i}' "
+            ADDITIONAL_BUILD_ARGS+=("--build-arg")
+            ADDITIONAL_BUILD_ARGS+=("${i}")
           done
 
-          docker build --build-arg version=${tag} ${ADDITIONAL_BUILD_ARGS} -f Dockerfile $docker_tag_args .
+          docker build --build-arg version=${tag} "${ADDITIONAL_BUILD_ARGS[@]}" -f Dockerfile $docker_tag_args .
           echo "== FINISHED DOCKERIZE"
         }
 
